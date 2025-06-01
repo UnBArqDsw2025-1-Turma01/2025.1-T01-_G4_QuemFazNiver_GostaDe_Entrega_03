@@ -102,6 +102,7 @@ class Festa(BaseModel):
     temas: List[str] = []
     desejos: List[Desejo] = []
     convites: List[Convite] = []
+    publisher_id: Optional[str] = None  # Novo campo para suporte a publisher
     
     class Config:
         schema_extra = {
