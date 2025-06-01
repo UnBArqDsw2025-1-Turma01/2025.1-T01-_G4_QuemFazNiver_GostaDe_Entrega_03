@@ -12,8 +12,17 @@ router = APIRouter(
     tags=["Notificações"]
 )
 
-@router.post("/")
+@router.post("/", summary="Enviar notificação")
 async def enviar_notificacao(mensagem_notificacao: MensagemNotificacao):
+    """
+    Envia uma notificação para um destinatário usando o método de comunicação especificado.
+    
+    - **destinatario**: Nome ou identificador do destinatário
+    - **mensagem**: Conteúdo da mensagem a ser enviada
+    - **tipo_notificacao**: Canal de comunicação (EMAIL, WHATSAPP ou TELEGRAM)
+    
+    Retorna uma confirmação de envio.
+    """
     # Selecionar a fábrica apropriada com base no tipo de notificação
     factory_map = {
         TipoNotificacao.EMAIL: EmailNotificationFactory(),

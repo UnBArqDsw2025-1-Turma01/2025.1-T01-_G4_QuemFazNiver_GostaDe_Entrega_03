@@ -1,79 +1,103 @@
 from fastapi import APIRouter, HTTPException
-from typing import List, Optional, Union
-from pydantic import BaseModel
-
+from typing import Dict, Any
 from portifolio_buffet import PortifolioBuffet
 from portifolio_fotografia import PortifolioFotografia
 from portifolio_confeitaria import PortifolioConfeitaria
 
 router = APIRouter(
     prefix="/portifolios",
-    tags=["Portifolios"]
+    tags=["Portfólios"]
 )
 
-class PortifolioBase(BaseModel):
-    titulo: str
-    descricao: str
-    valores: float
-    funcionamento: str
-    tipo: str  # "buffet", "fotografia", "confeitaria"
+@router.post("/buffet")
+async def criar_portifolio_buffet(
+    titulo: str,
+    descricao: str,
+    valores: float,
+    funcionamento: str,
+    tipo_evento: str,
+    cardapio_pratos: list[str]
+) -> Dict[str, Any]:
+    """
+    Cria um portfólio para serviço de buffet.
+    
+    - **titulo**: Título do portfólio
+    - **descricao**: Descrição do serviço
+    - **valores**: Valores a partir de (em reais)
+    - **funcionamento**: Horários de funcionamento
+    - **tipo_evento**: Tipo de evento atendido
+    - **cardapio_pratos**: Lista de pratos oferecidos
+    """
+    portifolio = PortifolioBuffet(
+        titulo=titulo,
+        descricao=descricao,
+        valores=valores,
+        funcionamento=funcionamento,
+        tipo_evento=tipo_evento,
+        cardapio_pratos=cardapio_pratos
+    )
+    
+    return portifolio.gerar_portifolio()
 
-class PortifolioBuffetCreate(PortifolioBase):
-    tipo_evento: str
-    cardapio_pratos: List[str]
+@router.post("/fotografia")
+async def criar_portifolio_fotografia(
+    titulo: str,
+    descricao: str,
+    valores: float,
+    funcionamento: str,
+    estilo_fotografia: str,
+    amostras_fotos: list[str]
+) -> Dict[str, Any]:
+    """
+    Cria um portfólio para serviço de fotografia.
+    
+    - **titulo**: Título do portfólio
+    - **descricao**: Descrição do serviço
+    - **valores**: Valores a partir de (em reais)
+    - **funcionamento**: Horários de funcionamento
+    - **estilo_fotografia**: Estilo fotográfico oferecido
+    - **amostras_fotos**: Links para amostras de fotos
+    """
+    portifolio = PortifolioFotografia(
+        titulo=titulo,
+        descricao=descricao,
+        valores=valores,
+        funcionamento=funcionamento,
+        estilo_fotografia=estilo_fotografia,
+        amostras_fotos=amostras_fotos
+    )
+    
+    return portifolio.gerar_portifolio()
 
-class PortifolioFotografiaCreate(PortifolioBase):
-    estilo_fotografia: str
-    amostras_fotos: List[str]
-
-class PortifolioConfeitariaCreate(PortifolioBase):
-    tipo_doce: List[str]
-    cardapio_doces: List[str]
-    cardapio_restricoes: List[str]
-
-@router.post("/")
-async def gerar_portifolio(portifolio_data: dict):
-    tipo = portifolio_data.get("tipo")
-
-    try:
-        if tipo == "buffet":
-            data = PortifolioBuffetCreate(**portifolio_data)
-            port = PortifolioBuffet(
-                titulo=data.titulo,
-                descricao=data.descricao,
-                valores=data.valores,
-                funcionamento=data.funcionamento,
-                tipo_evento=data.tipo_evento,
-                cardapio_pratos=data.cardapio_pratos
-            )
-
-        elif tipo == "fotografia":
-            data = PortifolioFotografiaCreate(**portifolio_data)
-            port = PortifolioFotografia(
-                titulo=data.titulo,
-                descricao=data.descricao,
-                valores=data.valores,
-                funcionamento=data.funcionamento,
-                estilo_fotografia=data.estilo_fotografia,
-                amostras_fotos=data.amostras_fotos
-            )
-
-        elif tipo == "confeitaria":
-            data = PortifolioConfeitariaCreate(**portifolio_data)
-            port = PortifolioConfeitaria(
-                titulo=data.titulo,
-                descricao=data.descricao,
-                valores=data.valores,
-                funcionamento=data.funcionamento,
-                tipo_doce=data.tipo_doce,
-                cardapio_doces=data.cardapio_doces,
-                cardapio_restricoes=data.cardapio_restricoes
-            )
-
-        else:
-            raise ValueError("Tipo de portfólio inválido.")
-
-        return port.gerar_portifolio()
-
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+@router.post("/confeitaria")
+async def criar_portifolio_confeitaria(
+    titulo: str,
+    descricao: str,
+    valores: float,
+    funcionamento: str,
+    tipo_doce: list[str],
+    cardapio_doces: list[str],
+    cardapio_restricoes: list[str]
+) -> Dict[str, Any]:
+    """
+    Cria um portfólio para serviço de confeitaria.
+    
+    - **titulo**: Título do portfólio
+    - **descricao**: Descrição do serviço
+    - **valores**: Valores a partir de (em reais)
+    - **funcionamento**: Horários de funcionamento
+    - **tipo_doce**: Tipos de doces oferecidos
+    - **cardapio_doces**: Lista de doces disponíveis
+    - **cardapio_restricoes**: Opções para restrições alimentares
+    """
+    portifolio = PortifolioConfeitaria(
+        titulo=titulo,
+        descricao=descricao,
+        valores=valores,
+        funcionamento=funcionamento,
+        tipo_doce=tipo_doce,
+        cardapio_doces=cardapio_doces,
+        cardapio_restricoes=cardapio_restricoes
+    )
+    
+    return portifolio.gerar_portifolio()
