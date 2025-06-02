@@ -17,5 +17,6 @@
     - [3.4. Participações - Padrões de Projeto](PadroesDeProjeto/3.4.ParticipacoesPadroes.md)
     - **3.5. Iniciativas Extras**
       - [3.5.1 Diagrama de Classes (Corrigido)](PadroesDeProjeto/3.5.1.Diagramadeclasses.md)
-      - [3.5.2 Protótipo (Corrigido)](PadroesDeProjeto/)
+      - [3.5.2 Ata](PadroesDeProjeto/3.5.2.Ata.md)
+     
       
