@@ -18,5 +18,6 @@
     - **3.5. Iniciativas Extras**
       - [3.5.1 Diagrama de Classes (Corrigido)](PadroesDeProjeto/3.5.1.Diagramadeclasses.md)
       - [3.5.2 Ata](PadroesDeProjeto/3.5.2.Ata.md)
+      - [3.5.3 Vídeo do Código rodando](PadroesDeProjeto/3.5.3.Video_codigo.md)
      
       
