@@ -57,8 +57,15 @@ class EmailNotificationFactory(NotificationFactory):
 
 # Cliente que utiliza a fábrica
 class NotificationService:
-    def __init__(self, notification_factory: NotificationFactory):
-        self.notification = notification_factory.create_notification()
+    def __init__(self, notification_factory: str):
+        if notification_factory == "WHATSAPP":
+            self.notification = WhatsAppNotificationFactory().create_notification()
+        elif notification_factory == "TELEGRAM":
+            self.notification = TelegramNotificationFactory().create_notification()
+        elif notification_factory == "EMAIL":
+            self.notification = EmailNotificationFactory().create_notification()
+        else:
+            raise ValueError("Tipo de notificação inválido")
     
     def notify(self, destinatario: str, mensagem: str) -> None:
         self.notification.send_notification(destinatario, mensagem)

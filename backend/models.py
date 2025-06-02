@@ -77,13 +77,14 @@ class Convite(BaseModel):
 class Usuario(BaseModel):
     id: Optional[str] = None
     nome: str
-    dataNascimento: date
+    dataNascimento: date = date.today()
     foto: Optional[bytes] = None
     sobreMim: Optional[str] = None
     tagsDePreferencias: List[str] = []
     perfil: Optional[Perfil] = None
     endereco: Optional[Endereco] = None
     quizzes: List[Quiz] = []
+    tiposDeNotificacao: List[str] = []
     
     class Config:
         schema_extra = {
