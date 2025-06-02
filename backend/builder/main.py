@@ -1,30 +1,47 @@
-from datetime import date
-from builder import PlanoDeFesta, FestaPersonalizadaBuilder, OrganizadorDeFesta
+from datetime import date, time
+from builder import FestaPersonalizadaBuilder, Organizador
+from festaUtils import FestaUtils
 
-# Exemplo de plano de festa
-plano = PlanoDeFesta(
-    buffetEscolhidas=["Buffet Kids", "Buffet Gourmet"],
-    bandaEscolhida="Banda da Felicidade",
-    nomeAniversariante="Bruno",
-    data=date(2025, 6, 12),
-    horario="19:00",
-    localFornecedor="Central Festas JK"
+# Criar o builder
+builder = FestaPersonalizadaBuilder()
+
+# Criar o director (Organizador)
+organizador = Organizador(builder)
+
+# Dados da festa inserido pelo usuário
+nome_aniversariante = input("Digite o nome do aniversariante: ")
+local = input("Digite o local da festa: ")
+buffet = [item.strip() for item in input("Digite os itens do buffet (separados por vírgula): ").split(",")]
+estilos_musicais = [item.strip() for item in input("Digite os estilos musicais (separados por vírgula): ").split(",")]
+
+# Solicita dia, mês e ano separadamente
+dia = int(input("Digite o dia da festa (DD): "))
+mes = int(input("Digite o mês da festa (MM): "))
+ano = int(input("Digite o ano da festa (YYYY): "))
+data = date(ano, mes, dia)  # Criar a data a partir dos valores fornecidos
+
+# Solicita a hora no formato HH:MM
+hora_input = input("Digite o horário da festa (formato HH:MM): ")
+hora = time.fromisoformat(hora_input)
+
+# Solicita o link do grupo
+link_grupo = input("Digite o link do grupo (opcional): ")
+
+# Construir a festa
+festa = organizador.construirFesta(
+    nomeAniversariante=nome_aniversariante,
+    local=local,
+    buffet=buffet,
+    estilosMusicais=estilos_musicais,
+    data=data,
+    hora=hora,
+    linkGrupo=link_grupo
 )
 
-# Cria o builder e o organizador
-builder = FestaPersonalizadaBuilder(plano)
-organizador = OrganizadorDeFesta()
+# Gerar o convite
+convite = FestaUtils.gerarConvite(festa)
+print(convite)
 
-# Constrói a festa
-festa = organizador.construirFesta(builder)
-
-# Exibe o resultado das opções "escolhidas"
-print("Festa organizada:")
-print(f"Aniversariante: {festa.nomeAniversariante}")
-print(f"Data: {festa.data}")
-print(f"Horário: {festa.horario}")
-print(f"Local: {festa.localFornecedor}")
-print(f"Buffet: {', '.join(festa.buffet)}")
-print(f"Banda: {festa.banda}")
-print(f"Convite WhatsApp: {festa.linkWhatsapp}")
-print(f"Convite: {festa.convite}") # Simula o convite, não temos um front com o convite
+# Gerar as preferências
+preferencias = FestaUtils.gerarPreferencias(festa)
+print(preferencias)

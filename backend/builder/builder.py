@@ -1,93 +1,92 @@
 from abc import ABC, abstractmethod
-from typing import List, Optional
-from datetime import date
+from typing import List
+from datetime import date, time
 
-class PlanoDeFesta:
-    def __init__(
-        self,
-        buffetEscolhidas: List[str],
-        bandaEscolhida: str,
-        nomeAniversariante: str,
-        data: date,
-        horario: str,
-        localFornecedor: str
-    ):
-        self.buffetEscolhidas = buffetEscolhidas
-        self.bandaEscolhida = bandaEscolhida
-        self.nomeAniversariante = nomeAniversariante
-        self.data = data
-        self.horario = horario
-        self.localFornecedor = localFornecedor
+# Produto
+class Festa:
+    def __init__(self):
+        self.nomeAniversariante = ""
+        self.local = ""
+        self.buffet = []
+        self.estilosMusicais = []
+        self.data = None
+        self.hora = None
+        self.linkGrupo = ""
 
-class FestaOrganizada:
-    def __init__(
-        self,
-        nomeAniversariante: str,
-        data: date,
-        horario: str,
-        localFornecedor: str,
-        buffet: List[str],
-        banda: str,
-        linkWhatsapp: Optional[str] = None,
-        convite: Optional[str] = None
-    ):
-        self.nomeAniversariante = nomeAniversariante
-        self.data = data
-        self.horario = horario
-        self.localFornecedor = localFornecedor
-        self.buffet = buffet
-        self.banda = banda
-        self.linkWhatsapp = linkWhatsapp
-        self.convite = convite
-
+# Interface Builder
 class FestaBuilder(ABC):
     @abstractmethod
-    def escolherLocalFornecedor(self): pass
+    def setNomeAniversariante(self, nomeAniversariante: str):
+        pass
 
     @abstractmethod
-    def selecionarBuffet(self): pass
+    def setLocal(self, local: str):
+        pass
 
     @abstractmethod
-    def contratarBanda(self): pass
+    def setbuffet(self, buffet: List[str]):
+        pass
 
     @abstractmethod
-    def gerarConvite(self): pass
+    def setEstilosMusicais(self, estilosMusicais: List[str]):
+        pass
 
     @abstractmethod
-    def getFesta(self) -> FestaOrganizada: pass
+    def setData(self, data: date):
+        pass
 
+    @abstractmethod
+    def setHora(self, hora: time):
+        pass
+
+    @abstractmethod
+    def setLinkGrupo(self, linkGrupo: str):
+        pass
+
+    @abstractmethod
+    def getFesta(self) -> Festa:
+        pass
+
+# Implementação do Builder
 class FestaPersonalizadaBuilder(FestaBuilder):
-    def __init__(self, plano: PlanoDeFesta):
-        self.plano = plano
-        self.festa = FestaOrganizada(
-            nomeAniversariante=plano.nomeAniversariante,
-            data=plano.data,
-            horario=plano.horario,
-            localFornecedor="",
-            buffet=[],
-            banda=""
-        )
+    def __init__(self):
+        self.festa = Festa()
 
-    def escolherLocalFornecedor(self):
-        self.festa.localFornecedor = self.plano.localFornecedor
+    def setNomeAniversariante(self, nomeAniversariante: str):
+        self.festa.nomeAniversariante = nomeAniversariante
 
-    def selecionarBuffet(self):
-        self.festa.buffet = self.plano.buffetEscolhidas
+    def setLocal(self, local: str):
+        self.festa.local = local
 
-    def contratarBanda(self):
-        self.festa.banda = self.plano.bandaEscolhida
+    def setbuffet(self, buffet: List[str]):
+        self.festa.buffet = buffet
 
-    def gerarConvite(self):
-        self.festa.linkWhatsapp = f"https://wa.me/?text=Convite%20para%20a%20festa%20de%20{self.plano.nomeAniversariante}"
-        self.festa.convite = f"Convite da festa de {self.plano.nomeAniversariante}"
+    def setEstilosMusicais(self, estilosMusicais: List[str]):
+        self.festa.estilosMusicais = estilosMusicais
 
-    def getFesta(self) -> FestaOrganizada:
+    def setData(self, data: date):
+        self.festa.data = data
+
+    def setHora(self, hora: time):
+        self.festa.hora = hora
+
+    def setLinkGrupo(self, linkGrupo: str):
+        self.festa.linkGrupo = linkGrupo
+
+    def getFesta(self) -> Festa:
         return self.festa
 
-class OrganizadorDeFesta:
-    def construirFesta(self, builder: FestaBuilder) -> FestaOrganizada:
-        builder.escolherLocalFornecedor()
-        builder.selecionarBuffet()
-        builder.contratarBanda()
-        builder.gerarConvite()
-        return builder.getFesta()
+# Director
+class Organizador:
+    def __init__(self, builder: FestaBuilder):
+        self.builder = builder
+
+    def construirFesta(self, nomeAniversariante: str, local: str, buffet: List[str], estilosMusicais: List[str], data: date, hora: time, linkGrupo: str) -> Festa:
+        self.builder.setNomeAniversariante(nomeAniversariante)
+        self.builder.setLocal(local)
+        self.builder.setbuffet(buffet)
+        self.builder.setEstilosMusicais(estilosMusicais)
+        self.builder.setData(data)
+        self.builder.setHora(hora)
+        self.builder.setLinkGrupo(linkGrupo)
+        return self.builder.getFesta()
