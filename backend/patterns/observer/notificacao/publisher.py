@@ -1,7 +1,6 @@
 from typing import List
-from models import Usuario
-from notification import NotificationService
-
+from .usuario import Usuario
+from patterns.factory_method.notification import NotificationService 
 
 class NotificationPublisher:
     """Publisher (Subject) that notifies subscribers when an event occurs."""
@@ -31,18 +30,3 @@ class NotificationPublisher:
 
 
 notification_publisher = NotificationPublisher()
-
-def main():
-    notification_publisher = NotificationPublisher()
-    users = [
-        Usuario(nome= "Alice", tiposDeNotificacao= ["EMAIL", "WHATSAPP"]),
-        Usuario(nome= "EVIE", tiposDeNotificacao= ["EMAIL", "TELEGRAM"]),
-        Usuario(nome= "BOB", tiposDeNotificacao= ["EMAIL", "WHATSAPP", "TELEGRAM"]),
-    ]
-    for user in users:
-        notification_publisher.subscribe(user)
-
-    notification_publisher.notify_all_subscribers()
-
-if __name__ == "__main__":
-    main()

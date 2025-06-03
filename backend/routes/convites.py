@@ -3,7 +3,9 @@ from typing import List, Dict, Any
 import uuid
 from models import Usuario
 from database.db import usuarios_db
-from decorator import ConviteConcreto, DecoratorInterativo, DecoratorLuxo, TemplateDefault
+from patterns.decorator.convite.convite_concreto import ConviteConcreto, TemplateDefault
+from patterns.decorator.convite.decorator_interativo import DecoratorInterativo
+from patterns.decorator.convite.decorator_luxo import DecoratorLuxo
 
 router = APIRouter(
     prefix="/convites",
