@@ -19,5 +19,9 @@
       - [3.5.1 Diagrama de Classes (Corrigido)](PadroesDeProjeto/3.5.1.Diagramadeclasses.md)
       - [3.5.2 Ata](PadroesDeProjeto/3.5.2.Ata.md)
       - [3.5.3 Vídeo do Código rodando](PadroesDeProjeto/3.5.3.Video_codigo.md)
+      - [3.5.4 Refatoração do Projeto](refatoracaoProjeto/3.5.4.refatoracaoExtra.md)
+        - [3.5.4.1 Builder](refatoracaoProjeto/3.5.4.1.Builder.md)
+        - [3.5.4.1 Bridge](refatoracaoProjeto/3.5.4.2.Bridge.md)
+        - [3.5.4.1 Template Method](refatoracaoProjeto/3.5.4.3.TemplateMethod.md)
      
       
