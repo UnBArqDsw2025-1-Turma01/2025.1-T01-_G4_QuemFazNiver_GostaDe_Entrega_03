@@ -4,18 +4,15 @@ import uuid
 from datetime import datetime
 from models import Festa, Desejo, Convite, TipoNotificacao
 from database.db import festas_db, usuarios_db
-from notification import (
+from patterns.factory_method.notification import (
     NotificationService, 
     EmailNotificationFactory, 
     WhatsAppNotificationFactory, 
     TelegramNotificationFactory
 )
-from notification_publisher import (
-    notification_publisher, 
-    EmailSubscriber, 
-    WhatsAppSubscriber, 
-    TelegramSubscriber
-)
+from patterns.builder.festa import AniversarioFestaBuilder, CasamentoFestaBuilder, FestaDirector
+from patterns.observer.notificacao import notification_publisher
+from patterns.observer.notificacao.publisher import notification_publisher
 
 router = APIRouter(
     prefix="/festas",
@@ -23,17 +20,42 @@ router = APIRouter(
 )
 
 @router.post("/", response_model=Festa)
-async def criar_festa(festa: Festa):
+async def criar_festa(
+    titulo: str,
+    data: datetime,
+    tipo_festa: str,  # "aniversario", "casamento", etc.
+    descricao: str = None,
+    anfitriao: str = None,
+    local: str = None,
+    convidados: List[str] = []
+    
+):
+    # Seleciona o builder apropriado baseado no tipo da festa
+    if tipo_festa == "aniversario":
+        builder = AniversarioFestaBuilder()
+    elif tipo_festa == "casamento":
+        builder = CasamentoFestaBuilder()
+    else:
+        raise HTTPException(status_code=400, detail="Tipo de festa não suportado")
+    
+    # Usa o director para construir a festa
+    director = FestaDirector(builder)
+    
+    if descricao and anfitriao and local and convidados:
+        director.construir_festa_completa(titulo, data, descricao, anfitriao, local, convidados)
+    else:
+        director.construir_festa_basica(titulo, data, anfitriao)
+        if descricao:
+            builder.set_descricao(descricao)
+        if local:
+            builder.set_local(local)
+        for convidado in convidados:
+            builder.add_convidado(convidado)
+    
+    festa = builder.build()
     festa_id = str(uuid.uuid4())
     festa.id = festa_id
     festas_db[festa_id] = festa
-    
-    # Notificar criação de festa usando o Observer
-    notification_publisher.notify_all_subscribers({
-        "tipo": "FESTA_CRIADA",
-        "mensagem": f"Uma nova festa foi criada para o dia {festa.dataEvento}",
-        "festa_id": festa_id
-    })
     
     return festa
 
@@ -127,14 +149,6 @@ async def enviar_convites(festa_id: str):
         )
         festas_db[festa_id].convites.append(convite)
     
-    # Notificar sobre envio de convites
-    notification_publisher.notify_all_subscribers({
-        "tipo": "CONVITES_ENVIADOS",
-        "mensagem": f"Convites enviados para a festa de ID {festa_id}",
-        "festa_id": festa_id,
-        "quantidade": len(festas_db[festa_id].listaConvidados)
-    })
-    
     return {"message": f"{len(festas_db[festa_id].listaConvidados)} convites enviados com sucesso"}
 
 @router.post("/{festa_id}/notificar-convidados")
@@ -167,61 +181,4 @@ async def notificar_convidados(
     return {
         "message": f"{len(festas_db[festa_id].listaConvidados)} convidados notificados com sucesso",
         "tipo_notificacao": tipo_notificacao
-    }
-
-@router.post("/{festa_id}/subscribir/{usuario_id}")
-async def subscribir_usuario(
-    festa_id: str, 
-    usuario_id: str,
-    tipo_notificacao: TipoNotificacao = Query(TipoNotificacao.EMAIL)
-):
-    """Inscreve um usuário para receber notificações sobre a festa."""
-    if festa_id not in festas_db:
-        raise HTTPException(status_code=404, detail="Festa não encontrada")
-    
-    if usuario_id not in usuarios_db:
-        raise HTTPException(status_code=404, detail="Usuário não encontrado")
-    
-    usuario = usuarios_db[usuario_id]
-    
-    # Criar o tipo apropriado de subscriber
-    if tipo_notificacao == TipoNotificacao.EMAIL:
-        subscriber = EmailSubscriber(usuario)
-    elif tipo_notificacao == TipoNotificacao.WHATSAPP:
-        subscriber = WhatsAppSubscriber(usuario)
-    elif tipo_notificacao == TipoNotificacao.TELEGRAM:
-        subscriber = TelegramSubscriber(usuario)
-    
-    # Inscrever o usuário no publisher
-    notification_publisher.subscribe(subscriber)
-    
-    return {
-        "message": f"Usuário {usuario.nome} inscrito para receber notificações por {tipo_notificacao}",
-        "festa_id": festa_id
-    }
-
-@router.post("/{festa_id}/unsubscribir/{usuario_id}")
-async def unsubscribir_usuario(festa_id: str, usuario_id: str):
-    """Remove um usuário da lista de inscritos para notificações sobre a festa."""
-    if festa_id not in festas_db:
-        raise HTTPException(status_code=404, detail="Festa não encontrada")
-    
-    if usuario_id not in usuarios_db:
-        raise HTTPException(status_code=404, detail="Usuário não encontrado")
-    
-    usuario = usuarios_db[usuario_id]
-    
-    # Encontrar e remover os observers deste usuário
-    subscribers_to_remove = []
-    for subscriber in notification_publisher.get_all_subscribers():
-        if hasattr(subscriber, 'usuario') and subscriber.usuario.id == usuario_id:
-            subscribers_to_remove.append(subscriber)
-    
-    for subscriber in subscribers_to_remove:
-        notification_publisher.unsubscribe(subscriber)
-    
-    return {
-        "message": f"Usuário {usuario.nome} removido da lista de notificações",
-        "festa_id": festa_id,
-        "removidos": len(subscribers_to_remove)
     }
